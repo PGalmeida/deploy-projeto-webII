@@ -1,0 +1,98 @@
+.page-container {
+  width: 90%;
+  max-width: 900px;
+  margin: 30px auto;
+}
+
+.page-container h1 {
+  color: #3CB3AB;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.top-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.btn-primary {
+  background-color: #3CB3AB;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: #86C561;
+}
+
+.list-container {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.styled-table th,
+.styled-table td {
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+}
+
+.styled-table th {
+  background-color: #3CB3AB;
+  color: white;
+}
+
+.status-ativo {
+  color: #3CB3AB;
+  font-weight: bold;
+}
+
+.status-inativo {
+  color: red;
+  font-weight: bold;
+}
+
+.form-container {
+  background: white;
+  padding: 25px;
+  border-radius: 8px;
+}
+
+.form-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-container input,
+.form-container select,
+.form-container textarea {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.btn-submit {
+  padding: 12px;
+  background-color: #3CB3AB;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-submit:hover {
+  background-color: #86C561;
+}

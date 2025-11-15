@@ -1,0 +1,40 @@
+.container {
+  width: 90%;
+  max-width: 1000px;
+  margin: 30px auto;
+  text-align: center;
+}
+
+.title {
+  color: #3CB3AB;
+  margin-bottom: 25px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background-color: #86C561;
+  color: white;
+  padding: 30px 20px;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card h2 {
+  font-size: 2.2rem;
+  margin-bottom: 10px;
+}
+
+.card p {
+  font-size: 1.1rem;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2);
+}

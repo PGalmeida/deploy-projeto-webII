@@ -1,0 +1,45 @@
+.novoTutor-container {
+  padding: 40px;
+}
+
+.novoTutor-container h1 {
+  color: #3CB3AB;
+  margin-bottom: 25px;
+}
+
+.form-tutor {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  max-width: 500px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-tutor label {
+  font-weight: bold;
+  color: #3D3D3D;
+}
+
+.form-tutor input {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #cccccc;
+}
+
+.btn-salvar {
+  background: #3CB3AB;
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-salvar:hover {
+  background: #86C561;
+}

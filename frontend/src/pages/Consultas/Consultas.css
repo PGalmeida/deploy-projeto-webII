@@ -1,0 +1,92 @@
+.page-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.page-header h1 {
+  color: #3d3d3d;
+  font-weight: bold;
+}
+
+.btn-new {
+  background-color: #3CB3AB;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.list-container table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.list-container th {
+  background: #3CB3AB;
+  color: white;
+  padding: 12px;
+  text-align: left;
+}
+
+.list-container td {
+  padding: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.btn-details {
+  background: #86C561;
+  color: #fff;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.form-container {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+label {
+  font-weight: bold;
+  color: #3d3d3d;
+}
+
+input,
+select,
+textarea {
+  padding: 10px;
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+}
+
+.btn-submit {
+  background-color: #3CB3AB;
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 10px;
+}
