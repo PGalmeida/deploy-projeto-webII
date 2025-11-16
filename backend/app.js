@@ -4,6 +4,7 @@ import authRoutes from "./routes/auth.js";
 import { connectDatabse } from "./config/dbConnect.js";
 import errorMiddleware from "./middleware/erros.js";
 import vetRoutes from "./routes/vet.js";
+import clinicRoutes from "./routes/clinicRoutes.js";
 
 const app = express();
 dotenv.config({ path: "backend/config/config.env" });
@@ -15,10 +16,19 @@ app.use(express.json());
 app.use("/api/v1", authRoutes);
 app.use("/api/v1", vetRoutes);
 
+// Monta rotas de clínicas somente se o Postgres estiver configurado
+const hasPostgres = !!process.env.DATABASE_URL;
+if (hasPostgres) {
+  app.use("/api/v1/clinics", clinicRoutes);
+} else {
+  console.warn("DATABASE_URL não definido. Rotas de clínicas desabilitadas.");
+}
+
 app.use(errorMiddleware);
 
-const server = app.listen(process.env.PORT, () => {
-  console.log("Servidor iniciado na porta 3000");
+const PORT = process.env.PORT || 3000;
+const server = app.listen(PORT, () => {
+  console.log(`Servidor iniciado na porta ${PORT}`);
 });
 
 process.on("unhandledRejection", (err) => {

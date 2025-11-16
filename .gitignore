@@ -1,2 +1,5 @@
 node_modules/
 backend/config/config.env
+/generated/prisma
+backend/.env
+/generated/prisma
