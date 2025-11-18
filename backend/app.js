@@ -6,6 +6,7 @@ import errorMiddleware from "./middleware/erros.js";
 import clinicRoutes from "./routes/clinicRoutes.js";
 import veterinaryRoutes from "./routes/veterinaryRoutes.js";
 import vetRoutes from "./routes/vet.js";
+import chatbotRoutes from "./routes/chatbotRoutes.js";
 
 const app = express();
 dotenv.config({ path: "backend/config/config.env" });
@@ -15,17 +16,18 @@ connectDatabase();
 app.use(express.json());
 
 app.use("/api/v1", authRoutes);
+app.use("/api/v1/chatbot", chatbotRoutes);
 
-// Rotas de consultas/agendamentos (MongoDB)
 app.use("/api/v1", vetRoutes);
 
-// Rotas de Postgres (Clínicas e Veterinários) - só funcionam se DATABASE_URL estiver configurado
 const hasPostgres = !!process.env.DATABASE_URL;
 if (hasPostgres) {
   app.use("/api/v1/clinics", clinicRoutes);
   app.use("/api/v1/veterinaries", veterinaryRoutes);
 } else {
-  console.warn("DATABASE_URL não definido. Rotas de clínicas e veterinários desabilitadas.");
+  console.warn(
+    "DATABASE_URL não definido. Rotas de clínicas e veterinários desabilitadas."
+  );
 }
 
 app.use(errorMiddleware);
