@@ -4,17 +4,17 @@ import ErrorHandler from "../utils/errorHandle.js";
 
 export const getVets = async (req, res, next) => {
   try {
-    const resPerPage = 4;
+    // Aplicar filtros de busca e outros filtros
     const apiFilters = new APIFilters(Vet, req.query).search().filters();
 
-    let vets = await apiFilters.query;
-    let filteredVetsCount = vets.length;
-
-    apiFilters.pagination(resPerPage);
-    vets = await apiFilters.query.clone();
+    // Buscar todas as consultas (sem paginação)
+    // A paginação pode ser aplicada no frontend se necessário
+    const vets = await apiFilters.query.sort({ createdAt: -1 }); // Ordenar por mais recente primeiro
+    
+    const filteredVetsCount = vets.length;
 
     res.status(200).json({
-      resPerPage,
+      resPerPage: filteredVetsCount, // Retornar todas
       filteredVetsCount,
       vets,
     });
@@ -25,9 +25,21 @@ export const getVets = async (req, res, next) => {
 
 export const newVet = async (req, res, next) => {
   try {
-    const vet = await Vet.create(req.body);
+    // Adicionar o ID do usuário autenticado (vem do middleware isAuthenticated)
+    const vetData = {
+      ...req.body,
+      user: req.user._id, // Adicionar o ID do usuário autenticado
+    };
+
+    // Converter dateConsult para Date se for string
+    if (vetData.dateConsult && typeof vetData.dateConsult === 'string') {
+      vetData.dateConsult = new Date(vetData.dateConsult);
+    }
+
+    const vet = await Vet.create(vetData);
 
     res.status(201).json({
+      success: true,
       vet,
     });
   } catch (err) {

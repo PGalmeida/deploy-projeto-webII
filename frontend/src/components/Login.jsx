@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./Auth.module.css";
 import { authAPI } from "../api/api";
+import { setToken, setUserInfo } from "../utils/auth";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -19,16 +20,33 @@ function Login() {
       const response = await authAPI.login({ email, password });
       
       // Verificar se o token existe na resposta
-      if (response.data && response.data.token) {
-        localStorage.setItem("token", response.data.token);
-        navigate("/dashboard");
-      } else {
+      if (response.data && (response.data.token || response.data.data?.token)) {
+        const token = response.data.token || response.data.data?.token;
+        setToken(token);
+        
+        // Salvar informações do usuário
+        if (response.data.user) {
+          setUserInfo(response.data.user);
+        } else {
+          // Se não vier nas informações de login, buscar do servidor
+          setTimeout(async () => {
+            try {
+              const userResponse = await authAPI.getCurrentUser();
+              if (userResponse.data && userResponse.data.user) {
+                setUserInfo(userResponse.data.user);
+              }
+            } catch (err) {
+            }
+          }, 500);
+        }
+        
+        navigate("/");
+      } else if (response.data && response.data.success) {
         setError("Token não recebido do servidor. Tente novamente.");
+      } else {
+        setError("Resposta inválida do servidor.");
       }
     } catch (err) {
-      console.error("Erro no login:", err);
-      
-      // Tratar diferentes tipos de erro
       if (err.response) {
         // Erro com resposta do servidor
         const errorMessage = err.response.data?.message || 

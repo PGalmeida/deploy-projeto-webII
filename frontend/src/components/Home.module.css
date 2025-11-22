@@ -1,67 +1,210 @@
 .homeContainer {
   width: 90%;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 30px auto;
-  text-align: center;
+  padding-bottom: 40px;
 }
 
 .homeTitle {
   color: #3CB3AB;
-  margin-bottom: 25px;
+  margin-bottom: 30px;
+  text-align: center;
 }
 
-/* Grid para cards verticais */
+/* Grid para cards de estatísticas */
 .dashboardGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 20px;
-}
-
-/* Ajuste para a segunda linha com 4 cards */
-.dashboardGrid.secondRow {
-  grid-template-columns: repeat(4, 1fr);
+  margin-bottom: 40px;
 }
 
 .dashboardCard {
   display: flex;
-  flex-direction: column; /* vertical */
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   background-color: white;
   color: #333;
-  padding: 25px 15px;
+  padding: 30px 20px;
   border-radius: 12px;
   text-decoration: none;
   transition: transform 0.2s, box-shadow 0.2s;
   box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
-  min-height: 150px;
+  min-height: 180px;
   text-align: center;
+}
+
+.dashboardCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 8px 16px rgba(0,0,0,0.15);
+}
+
+.cardNumber {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #3CB3AB;
+  margin-bottom: 10px;
+  line-height: 1;
+}
+
+.cardIcon {
+  font-size: 3rem;
+  margin-bottom: 10px;
+  line-height: 1;
 }
 
 .dashboardCard h2 {
   font-size: 1.5rem;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+  color: #333;
 }
 
 .dashboardCard p {
-  font-size: 1rem;
+  font-size: 0.95rem;
+  margin: 0;
+  color: #666;
+}
+
+.cardMedVet {
+  background-color: #3CB3AB;
+  color: white;
+}
+
+.cardMedVet h2,
+.cardMedVet p {
+  color: white;
+}
+
+.cardMedVet .cardIcon {
+  color: white;
+}
+
+/* Seções de listas */
+.sectionContainer {
+  background-color: white;
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 30px;
+  box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.sectionHeader h2 {
+  color: #3CB3AB;
+  font-size: 1.5rem;
   margin: 0;
 }
 
-.dashboardCard:hover {
-  transform: translateY(-3px);
-  box-shadow: 0px 6px 12px rgba(0,0,0,0.15);
+.viewAllLink {
+  color: #3CB3AB;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
 }
 
-/* Cards específicos */
-.cardTutores {}
-.cardAnimais {}
-.cardMedicos {}
-.cardConsultas {}
-.cardAgendamentos {}
+.viewAllLink:hover {
+  color: #86C561;
+  text-decoration: underline;
+}
 
-/* VetHub + IA */
-.cardVetHub {
-  background-color: #FF6F61;
+.emptyMessage {
+  text-align: center;
+  color: #999;
+  padding: 40px 20px;
+  font-style: italic;
+}
+
+/* Grid para listas de médicos e clínicas */
+.listGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.listItem {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #e9ecef;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.listItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+}
+
+.itemInfo h4 {
+  color: #333;
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.itemDetail {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 5px 0;
+}
+
+.itemClinic {
+  color: #3CB3AB;
+  font-size: 0.9rem;
+  margin: 8px 0 0 0;
+  font-weight: 500;
+}
+
+.viewMoreContainer {
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e9ecef;
+}
+
+.viewMoreLink {
+  color: #3CB3AB;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 10px 20px;
+  border: 2px solid #3CB3AB;
+  border-radius: 6px;
+  display: inline-block;
+  transition: all 0.2s;
+}
+
+.viewMoreLink:hover {
+  background-color: #3CB3AB;
   color: white;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .homeContainer {
+    width: 95%;
+    margin: 20px auto;
+  }
+
+  .dashboardGrid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .listGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .sectionHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
 }

@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "MedVet",
+  "name": "MedVet - Sistema de Gestão Veterinária",
   "icons": [
     {
       "src": "favicon.ico",

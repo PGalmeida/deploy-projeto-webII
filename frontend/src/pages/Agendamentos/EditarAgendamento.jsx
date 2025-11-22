@@ -1,24 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { vetAPI, veterinaryAPI, clinicAPI } from "../../api/api";
 import { isAuthenticated, isAdmin } from "../../utils/auth.js";
 
-const NovoAgendamento = () => {
+const EditarAgendamento = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
-  
-  // Verificar autenticação e permissões ao carregar
-  useEffect(() => {
-    if (!isAuthenticated()) {
-      navigate("/login");
-      return;
-    }
-    if (!isAdmin()) {
-      alert("Apenas administradores podem criar consultas.");
-      navigate("/agendamentos");
-      return;
-    }
-  }, [navigate]);
+
   const [loading, setLoading] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
   const [error, setError] = useState("");
   const [loadingClinics, setLoadingClinics] = useState(true);
   const [loadingVeterinaries, setLoadingVeterinaries] = useState(true);
@@ -46,39 +36,7 @@ const NovoAgendamento = () => {
   const [clinics, setClinics] = useState([]);
   const [veterinaries, setVeterinaries] = useState([]);
 
-  useEffect(() => {
-    const hoje = new Date();
-    const dataAtual = hoje.toISOString().split("T")[0];
-    const horaAtual = hoje.toTimeString().slice(0, 5);
-    setFormData(prev => ({
-      ...prev,
-      dateConsult: dataAtual,
-      hourConsult: horaAtual,
-    }));
-    fetchClinics();
-  }, []);
-
-  useEffect(() => {
-    if (formData.clinicId) {
-      fetchVeterinaries(formData.clinicId);
-    }
-  }, [formData.clinicId]);
-
-  const fetchClinics = async () => {
-    try {
-      const response = await clinicAPI.getAll();
-      const clinicsData = Array.isArray(response.data) ? response.data : [];
-      setClinics(clinicsData);
-      if (clinicsData.length > 0) {
-        setFormData(prev => ({ ...prev, clinicId: clinicsData[0].id.toString() }));
-      }
-    } catch (err) {
-    } finally {
-      setLoadingClinics(false);
-    }
-  };
-
-  const fetchVeterinaries = async (clinicId) => {
+  const fetchVeterinaries = useCallback(async (clinicId) => {
     try {
       setLoadingVeterinaries(true);
       const response = await veterinaryAPI.getAll();
@@ -86,14 +44,86 @@ const NovoAgendamento = () => {
       // Filtrar veterinários por clínica
       const filteredVets = vetsData.filter(vet => vet.clinicId === parseInt(clinicId));
       setVeterinaries(filteredVets);
-      if (filteredVets.length > 0) {
-        setFormData(prev => ({ ...prev, veterinaryId: filteredVets[0].id.toString() }));
-      }
     } catch (err) {
     } finally {
       setLoadingVeterinaries(false);
     }
-  };
+  }, []);
+
+  const fetchClinics = useCallback(async () => {
+    try {
+      const response = await clinicAPI.getAll();
+      const clinicsData = Array.isArray(response.data) ? response.data : [];
+      setClinics(clinicsData);
+    } catch (err) {
+    } finally {
+      setLoadingClinics(false);
+    }
+  }, []);
+
+  const fetchAgendamento = useCallback(async () => {
+    try {
+      setLoadingData(true);
+      const response = await vetAPI.getById(id);
+      const data = response.data.vet || response.data;
+      
+      // Formatar data para o input
+      const date = data.dateConsult ? new Date(data.dateConsult).toISOString().split("T")[0] : "";
+      
+      setFormData({
+        tutorName: data.tutorName || "",
+        tutorEmail: data.tutorEmail || "",
+        tutorPhone: data.tutorPhone || "",
+        animalName: data.animalName || "",
+        species: data.species || "",
+        race: data.race || "",
+        age: data.age || "",
+        sex: data.sex || "",
+        dateConsult: date,
+        hourConsult: data.hourConsult || "",
+        reasonConsult: data.reasonConsult || "",
+        symptoms: data.symptoms || "",
+        status: data.status || "Agendada",
+        observations: data.observations || "",
+        clinicId: data.clinicId ? data.clinicId.toString() : "",
+        veterinaryId: data.veterinaryId ? data.veterinaryId.toString() : "",
+      });
+
+      // Buscar veterinários da clínica selecionada
+      if (data.clinicId) {
+        fetchVeterinaries(data.clinicId.toString());
+      }
+    } catch (err) {
+      if (err.response?.status === 404) {
+        setError("Agendamento não encontrado.");
+      } else {
+        setError("Erro ao carregar agendamento. Tente novamente.");
+      }
+    } finally {
+      setLoadingData(false);
+    }
+  }, [id, fetchVeterinaries]);
+
+  // Verificar autenticação e permissões ao carregar
+  useEffect(() => {
+    if (!isAuthenticated()) {
+      navigate("/login");
+      return;
+    }
+    if (!isAdmin()) {
+      alert("Apenas administradores podem editar consultas.");
+      navigate("/agendamentos");
+      return;
+    }
+    fetchAgendamento();
+    fetchClinics();
+  }, [navigate, fetchAgendamento, fetchClinics]);
+
+  useEffect(() => {
+    if (formData.clinicId) {
+      fetchVeterinaries(formData.clinicId);
+    }
+  }, [formData.clinicId, fetchVeterinaries]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -129,23 +159,21 @@ const NovoAgendamento = () => {
         age: parseInt(formData.age) || 0,
         clinicId: formData.clinicId ? parseInt(formData.clinicId) : 1,
         veterinaryId: formData.veterinaryId ? parseInt(formData.veterinaryId) : 1,
-        // A data será convertida para Date no backend
         dateConsult: formData.dateConsult ? new Date(formData.dateConsult).toISOString() : new Date().toISOString(),
       };
 
-      await vetAPI.create(dataToSend);
+      await vetAPI.update(id, dataToSend);
       navigate("/agendamentos");
     } catch (err) {
-      let errorMessage = "Erro ao criar agendamento. Tente novamente.";
+      let errorMessage = "Erro ao atualizar agendamento. Tente novamente.";
       
       if (err.response) {
-        // Erro de resposta do servidor
         if (err.response.status === 401) {
-          errorMessage = "Você precisa estar autenticado para criar uma consulta. Por favor, faça login.";
+          errorMessage = "Você precisa estar autenticado para editar uma consulta.";
         } else if (err.response.status === 403) {
-          errorMessage = "Apenas administradores podem criar consultas. Faça login como administrador.";
+          errorMessage = "Apenas administradores podem editar consultas.";
         } else if (err.response.status === 404) {
-          errorMessage = "Rota não encontrada. Verifique se o servidor está rodando corretamente.";
+          errorMessage = "Agendamento não encontrado.";
         } else if (err.response.data?.message) {
           errorMessage = err.response.data.message;
         }
@@ -159,18 +187,18 @@ const NovoAgendamento = () => {
     }
   };
 
-  if (loadingClinics) {
+  if (loadingData) {
     return (
       <div className="container mt-5">
-        <h2 className="fw-bold mb-4">Novo Agendamento</h2>
-        <p>Carregando...</p>
+        <h2 className="fw-bold mb-4">Editar Agendamento</h2>
+        <p>Carregando dados do agendamento...</p>
       </div>
     );
   }
 
   return (
     <div className="container mt-5 mb-5">
-      <h2 className="fw-bold mb-4">Novo Agendamento / Consulta</h2>
+      <h2 className="fw-bold mb-4">Editar Agendamento / Consulta</h2>
 
       {error && (
         <div className="alert alert-danger" role="alert">
@@ -439,7 +467,7 @@ const NovoAgendamento = () => {
               style={{ backgroundColor: "#3CB3AB", color: "#fff" }}
               disabled={loading}
             >
-              {loading ? "Salvando..." : "Salvar Agendamento"}
+              {loading ? "Salvando..." : "Salvar Alterações"}
             </button>
             <button
               type="button"
@@ -456,4 +484,5 @@ const NovoAgendamento = () => {
   );
 };
 
-export default NovoAgendamento;
+export default EditarAgendamento;
+

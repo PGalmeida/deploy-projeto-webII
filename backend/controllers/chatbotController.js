@@ -15,7 +15,10 @@ export const sendMessage = async (req, res) => {
       bot: reply,
     });
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({ error: "Erro interno no servidor." });
+    const errorMessage = error.message || "Erro ao processar a mensagem. Tente novamente.";
+    return res.status(500).json({ 
+      error: errorMessage,
+      bot: errorMessage 
+    });
   }
 };
