@@ -1,0 +1,52 @@
+.container {
+  width: 90%;
+  max-width: 600px;
+  margin: 30px auto;
+}
+
+.title {
+  text-align: center;
+  color: #3CB3AB;
+  margin-bottom: 25px;
+}
+
+.formCard {
+  background: white;
+  padding: 25px;
+  border-radius: 8px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.input,
+.textarea,
+.select {
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+.textarea {
+  resize: vertical;
+}
+
+.btnSubmit {
+  padding: 12px;
+  background: #3CB3AB;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btnSubmit:hover {
+  background: #86C561;
+}

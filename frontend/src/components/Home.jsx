@@ -11,6 +11,10 @@ function Home() {
           <h2>Tutores</h2>
           <p>Gerencie os tutores dos pacientes</p>
         </Link>
+        <Link to="/clinicas" className={styles.dashboardCard}>
+        <h2>Clínicas</h2>
+        <p>Gerencie as clínicas cadastradas</p>
+        </Link>
 
         <Link to="/consultas" className={styles.dashboardCard}>
           <h2>Consultas</h2>

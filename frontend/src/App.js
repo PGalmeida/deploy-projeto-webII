@@ -15,6 +15,8 @@ import MedicosList from "./pages/Medicos/MedicosList";
 import NovoMedico from "./pages/Medicos/NovoMedico";
 import AgendamentosList from "./pages/Agendamentos/AgendamentosList";
 import NovoAgendamento from "./pages/Agendamentos/NovoAgendamento";
+import Clinics from './pages/Clinicas/Clinics';
+import ClinicsForm from './pages/Clinicas/ClinicForm';
 
 import Login from "./components/Login";
 import Register from "./components/Register";
@@ -46,6 +48,10 @@ function AppLayout() {
 
         <Route path="/agendamentos" element={<AgendamentosList />} />
         <Route path="/agendamentos/novo" element={<NovoAgendamento />} />
+
+        <Route path="/clinicas" element={<Clinics />} />
+        <Route path="/clinicas/nova" element={<ClinicsForm />} />
+        <Route path="/clinicas/editar/:id" element={<ClinicsForm />} />
 
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/vethub-ia" element={<div>Em desenvolvimento: VetHub + IA</div>} />

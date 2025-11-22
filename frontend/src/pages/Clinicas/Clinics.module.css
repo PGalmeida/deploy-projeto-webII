@@ -1,0 +1,86 @@
+.container {
+  width: 90%;
+  max-width: 1000px;
+  margin: 30px auto;
+}
+
+.title {
+  text-align: center;
+  color: #3CB3AB;
+  margin-bottom: 30px;
+}
+
+.topBar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.btnNew {
+  background: #3CB3AB;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-weight: bold;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.btnNew:hover {
+  background: #86C561;
+}
+
+.tableWrapper {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  background: #3CB3AB;
+  color: #fff;
+  padding: 12px;
+}
+
+.table td {
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btnEdit,
+.btnDelete {
+  padding: 7px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+}
+
+.btnEdit {
+  background: #3CB3AB;
+  color: #fff;
+}
+
+.btnEdit:hover {
+  background: #86C561;
+}
+
+.btnDelete {
+  background: #d9534f;
+  color: #fff;
+}
+
+.btnDelete:hover {
+  background: #b52b27;
+}

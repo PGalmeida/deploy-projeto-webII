@@ -144,7 +144,7 @@ export const vetAPI = {
 export const veterinaryAPI = {
   getAll: () => api.get("/api/v1/veterinaries"),
   getById: (id) => api.get(`/api/v1/veterinaries/${id}`),
-  create: (vetData) => api.post("/api/v1/admin/veterinaries", vetData),
+  create: (vetData) => api.post("/api/v1/veterinaries", vetData),
   update: (id, vetData) => api.put(`/api/v1/veterinaries/${id}`, vetData),
   delete: (id) => api.delete(`/api/v1/veterinaries/${id}`),
 };
