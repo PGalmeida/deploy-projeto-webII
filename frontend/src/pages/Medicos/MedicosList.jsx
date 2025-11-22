@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import "./Medicos.css"
 import { veterinaryAPI } from "../../api/api"
+import { isAdmin } from "../../utils/auth.js"
 
 function MedicosList() {
   const [medicos, setMedicos] = useState([])
@@ -23,7 +24,7 @@ function MedicosList() {
       if (errorMessage.includes("DATABASE_URL") || errorMessage.includes("PostgreSQL")) {
         setError("Serviço de veterinários não disponível. Verifique a configuração do banco de dados.")
       } else {
-        setError("Erro ao carregar médicos. Tente novamente.")
+        setError("Erro ao carregar veterinários. Tente novamente.")
       }
     } finally {
       setLoading(false)
@@ -33,7 +34,7 @@ function MedicosList() {
   if (loading) {
     return (
       <div className="page-container">
-        <h1>Médicos Cadastrados</h1>
+        <h1>Veterinários Cadastrados</h1>
         <p>Carregando...</p>
       </div>
     )
@@ -42,7 +43,7 @@ function MedicosList() {
   if (error) {
     return (
       <div className="page-container">
-        <h1>Médicos Cadastrados</h1>
+        <h1>Veterinários Cadastrados</h1>
         <p style={{ color: "red" }}>{error}</p>
       </div>
     )
@@ -50,17 +51,19 @@ function MedicosList() {
 
   return (
     <div className="page-container">
-      <h1>Médicos Cadastrados</h1>
+      <h1>Veterinários Cadastrados</h1>
 
-      <div className="top-actions">
-        <Link to="/medicos/novo" className="btn-primary">
-          Cadastrar Médico
-        </Link>
-      </div>
+      {isAdmin() && (
+        <div className="top-actions">
+          <Link to="/medicos/novo" className="btn-primary">
+            Cadastrar Veterinário
+          </Link>
+        </div>
+      )}
 
       <div className="list-container">
         {medicos.length === 0 ? (
-          <p>Nenhum médico cadastrado.</p>
+          <p>Nenhum veterinário cadastrado.</p>
         ) : (
           <table className="styled-table">
             <thead>

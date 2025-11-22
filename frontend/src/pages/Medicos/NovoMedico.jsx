@@ -26,7 +26,6 @@ const NovaMedico = () => {
         setClinicId(clinicsData[0].id.toString());
       }
     } catch (err) {
-      console.error("Erro ao carregar clínicas:", err);
       setError("Erro ao carregar clínicas. Verifique a configuração do banco de dados.");
     } finally {
       setLoadingClinics(false);
@@ -52,9 +51,8 @@ const NovaMedico = () => {
       });
       navigate("/medicos");
     } catch (err) {
-      const errorMessage = err.response?.data?.message || "Erro ao cadastrar médico. Tente novamente.";
+      const errorMessage = err.response?.data?.message || "Erro ao cadastrar veterinário. Tente novamente.";
       setError(errorMessage);
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -63,7 +61,7 @@ const NovaMedico = () => {
   if (loadingClinics) {
     return (
       <div className="container mt-4 mb-5">
-        <h2 className="text-center mb-4">Cadastrar Médico / Veterinário</h2>
+        <h2 className="text-center mb-4">Cadastrar Veterinário</h2>
         <p>Carregando clínicas...</p>
       </div>
     );
@@ -71,7 +69,7 @@ const NovaMedico = () => {
 
   return (
     <div className="container mt-4 mb-5">
-      <h2 className="text-center mb-4">Cadastrar Médico / Veterinário</h2>
+      <h2 className="text-center mb-4">Cadastrar Veterinário</h2>
 
       {error && (
         <div className="alert alert-danger" role="alert">
@@ -85,7 +83,7 @@ const NovaMedico = () => {
         style={{ backgroundColor: "#f8f9fa" }}
       >
         <div className="mb-3">
-          <label className="form-label">Nome do Médico</label>
+          <label className="form-label">Nome do Veterinário</label>
           <input
             type="text"
             className="form-control"
@@ -156,7 +154,7 @@ const NovaMedico = () => {
         </div>
 
         <button className="btn btn-primary w-100 mt-3" type="submit" disabled={loading || clinics.length === 0}>
-          {loading ? "Salvando..." : "Salvar Médico"}
+          {loading ? "Salvando..." : "Salvar Veterinário"}
         </button>
       </form>
     </div>

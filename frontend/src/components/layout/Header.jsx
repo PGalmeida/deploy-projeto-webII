@@ -93,29 +93,82 @@ const Header = () => {
 
 export default Header;
 */
-import React from "react"
-import { Link } from "react-router-dom"
+import React, { useState, useEffect } from "react"
+import { Link, useNavigate } from "react-router-dom"
+import { isAuthenticated, getUserInfo, logout as logoutUser, isAdmin } from "../../utils/auth"
 import "./Header.css"
 
 const Header = () => {
+  const [loggedIn, setLoggedIn] = useState(false)
+  const [user, setUser] = useState(null)
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    // Verificar status de autenticação
+    const checkAuth = () => {
+      const authenticated = isAuthenticated()
+      const userInfo = getUserInfo()
+      setLoggedIn(authenticated)
+      setUser(userInfo)
+    }
+
+    checkAuth()
+    
+    // Atualizar quando o localStorage mudar
+    const handleStorageChange = () => {
+      checkAuth()
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    // Verificar periodicamente (para mudanças na mesma aba)
+    const interval = setInterval(checkAuth, 1000)
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      clearInterval(interval)
+    }
+  }, [])
+
+  const handleLogout = () => {
+    logoutUser()
+    setLoggedIn(false)
+    setUser(null)
+    navigate("/")
+  }
+
   return (
     <header className="header">
       <div className="header-left">
         <Link to="/" className="header-logo">
-          <img src="/images/LogoOfc.png" alt="Logo" />
+          <img src="/images/medvet_image.png" alt="MedVet Logo" />
         </Link>
       </div>
 
       <nav className="header-nav">
-        <Link to="/tutores">Tutores</Link>
-        <Link to="/consultas">Consultas</Link>
-        <Link to="/medicos">Médicos</Link>
-        <Link to="/agendamentos">Agendamentos</Link>
-        <Link to="/animais">Animais</Link>
+        <Link to="/">Home</Link>
+        <Link to="/agendamentos">Consultas</Link>
+        <Link to="/medicos">Veterinários</Link>
+        <Link to="/clinicas">Clínicas</Link>
+        <Link to="/medvet-ia">IA</Link>
       </nav>
 
       <div className="header-right">
-        <Link to="/login" className="header-login">Login</Link>
+        {loggedIn && user ? (
+          <div className="header-user-info">
+            <div className="user-details">
+              <span className="user-name">{user.name}</span>
+              {isAdmin() && <span className="user-badge">Admin</span>}
+            </div>
+            <Link to="/perfil" className="header-profile">
+              Perfil
+            </Link>
+            <button onClick={handleLogout} className="header-logout">
+              Sair
+            </button>
+          </div>
+        ) : (
+          <Link to="/login" className="header-login">Login</Link>
+        )}
       </div>
     </header>
   )

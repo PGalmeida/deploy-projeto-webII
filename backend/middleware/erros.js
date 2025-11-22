@@ -4,18 +4,19 @@ export default (err, req, res, next) => {
     message: err?.message || "Erro interno do servidor",
   };
 
-  // Log do erro para debug
-  console.error("Error:", {
-    statusCode: error.statusCode,
-    message: error.message,
-    path: req.path,
-    method: req.method,
-    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
-  });
-
   if (err.code === "P2025") {
     error.statusCode = 404;
     error.message = "Registro não encontrado";
+  }
+
+  if (err.code === "P1001" || err.code === "P1017" || err.code === "P1000") {
+    error.statusCode = 503;
+    error.message = "Erro ao conectar com o banco de dados PostgreSQL. Verifique se o serviço está rodando e se a DATABASE_URL está correta.";
+  }
+
+  if (err.message && err.message.includes("PrismaClient")) {
+    error.statusCode = 503;
+    error.message = "Erro na configuração do banco de dados. Execute 'npm run prisma:generate' ou verifique a configuração do Prisma.";
   }
 
   if (err.name === "ValidationError") {
@@ -28,7 +29,6 @@ export default (err, req, res, next) => {
     error.message = "Registro duplicado. Este valor já existe.";
   }
 
-  // Se for erro de MongoDB
   if (err.name === "MongoServerError") {
     if (err.code === 11000) {
       error.statusCode = 400;

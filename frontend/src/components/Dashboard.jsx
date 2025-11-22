@@ -6,7 +6,7 @@ const Dashboard = () => {
   const stats = [
     { title: "Tutores", count: 12, link: "/tutores" },
     { title: "Animais", count: 25, link: "/animais" },
-    { title: "Médicos", count: 8, link: "/medicos" },
+    { title: "Veterinários", count: 8, link: "/medicos" },
     { title: "Consultas", count: 34, link: "/consultas" },
     { title: "Agendamentos", count: 15, link: "/agendamentos" },
   ];
