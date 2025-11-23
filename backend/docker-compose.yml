@@ -6,7 +6,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    container_name: loja-backend
+    container_name: medvet-backend
     ports:
       - "3000:3000"
     environment:
@@ -16,26 +16,24 @@ services:
       - DATABASE_URL=postgresql://postgres:medvet123@postgres:5432/medvet?schema=public
       - JWT_SECRET=${JWT_SECRET:-vefgHHBGjbbf54feef54f5fhGh}
       - JWT_EXPIRES_TIME=${JWT_EXPIRES_TIME:-7d}
-      - HUGGINGFACE_API_KEY=${HUGGINGFACE_API_KEY}
-      - HUGGINGFACE_MODEL=${HUGGINGFACE_MODEL:-google/flan-t5-large}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
     depends_on:
       mongodb:
         condition: service_healthy
       postgres:
         condition: service_healthy
     volumes:
-      - ./backend:/app/backend
-      - ./package.json:/app/package.json
+      - .:/app
       - /app/node_modules
     restart: unless-stopped
     networks:
-      - loja-network
-    command: sh -c "npx prisma migrate deploy --schema=./backend/prisma/schema.prisma || true && npm run dev"
+      - medvet-network
+    command: sh -c "npx prisma migrate deploy --schema=./prisma/schema.prisma || true && npm run dev"
 
   # Serviço do MongoDB
   mongodb:
     image: mongo:7
-    container_name: loja-mongodb
+    container_name: medvet-mongodb
     ports:
       - "27017:27017"
     environment:
@@ -44,7 +42,7 @@ services:
       - mongodb_data:/data/db
     restart: unless-stopped
     networks:
-      - loja-network
+      - medvet-network
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
       interval: 10s
@@ -54,7 +52,7 @@ services:
   # Serviço do PostgreSQL
   postgres:
     image: postgres:16-alpine
-    container_name: loja-postgres
+    container_name: medvet-postgres
     ports:
       - "5432:5432"
     environment:
@@ -65,7 +63,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
     networks:
-      - loja-network
+      - medvet-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -77,6 +75,6 @@ volumes:
   postgres_data:
 
 networks:
-  loja-network:
+  medvet-network:
     driver: bridge
 

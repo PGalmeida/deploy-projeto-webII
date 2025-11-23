@@ -23,7 +23,6 @@ const __dirname = dirname(__filename);
 if (process.env.NODE_ENV !== 'production') {
   const envPaths = [
     join(__dirname, 'config', 'config.env'),
-    join(process.cwd(), 'backend', 'config', 'config.env'),
     join(process.cwd(), 'config', 'config.env'),
   ];
 

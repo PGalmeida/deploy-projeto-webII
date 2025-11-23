@@ -17,13 +17,13 @@ COPY package*.json ./
 RUN npm install
 
 # Copia o schema do Prisma
-COPY backend/prisma ./backend/prisma
+COPY prisma ./prisma
 
 # Copia o restante dos arquivos do projeto
 COPY . .
 
 # Gera o Prisma Client
-RUN npx prisma generate --schema=./backend/prisma/schema.prisma
+RUN npx prisma generate --schema=./prisma/schema.prisma
 
 # Expõe a porta do servidor
 EXPOSE 3000

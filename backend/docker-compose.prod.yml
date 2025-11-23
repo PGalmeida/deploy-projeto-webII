@@ -1,37 +1,31 @@
 version: '3.8'
 
 services:
-  # Serviço do backend (Produção)
+  # Serviço do backend
   backend:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: loja-backend-prod
+    container_name: medvet-backend-prod
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - PORT=3000
+      - PORT=${PORT:-3000}
       - DB_URI=${DB_URI}
       - DATABASE_URL=${DATABASE_URL}
       - JWT_SECRET=${JWT_SECRET}
       - JWT_EXPIRES_TIME=${JWT_EXPIRES_TIME:-7d}
-      - HUGGINGFACE_API_KEY=${HUGGINGFACE_API_KEY}
-      - HUGGINGFACE_MODEL=${HUGGINGFACE_MODEL:-google/flan-t5-large}
-    depends_on:
-      mongodb:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
     restart: unless-stopped
     networks:
-      - loja-network
-    command: sh -c "npx prisma migrate deploy --schema=./backend/prisma/schema.prisma && npm start"
+      - medvet-network
+    command: sh -c "npx prisma migrate deploy --schema=./prisma/schema.prisma || true && npm start"
 
-  # Serviço do MongoDB
+  # Serviço do MongoDB (opcional - pode usar MongoDB Atlas)
   mongodb:
     image: mongo:7
-    container_name: loja-mongodb-prod
+    container_name: medvet-mongodb-prod
     ports:
       - "27017:27017"
     environment:
@@ -40,30 +34,30 @@ services:
       - mongodb_data:/data/db
     restart: unless-stopped
     networks:
-      - loja-network
+      - medvet-network
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # Serviço do PostgreSQL
+  # Serviço do PostgreSQL (opcional - pode usar Neon)
   postgres:
     image: postgres:16-alpine
-    container_name: loja-postgres-prod
+    container_name: medvet-postgres-prod
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_USER=${POSTGRES_USER:-postgres}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB:-medvet}
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-medvet123}
+      - POSTGRES_DB=medvet
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
     networks:
-      - loja-network
+      - medvet-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -73,6 +67,6 @@ volumes:
   postgres_data:
 
 networks:
-  loja-network:
+  medvet-network:
     driver: bridge
 
