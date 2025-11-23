@@ -23,6 +23,9 @@ COPY . .
 # Gera o Prisma Client novamente (caso o postinstall tenha falhado)
 RUN npx prisma generate --schema=./backend/prisma/schema.prisma || true
 
+# Define variável de ambiente para produção
+ENV NODE_ENV=production
+
 # Expõe a porta do servidor
 EXPOSE 3000
 
