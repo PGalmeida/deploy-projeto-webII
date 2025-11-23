@@ -22,7 +22,25 @@ const AgendamentosList = () => {
       const data = response.data;
       
       const vetsList = data.vets || [];
-      setAgendamentos(vetsList);
+      
+      // Ordena por data e hora: mais próxima primeiro
+      const sortedAgendamentos = vetsList.sort((a, b) => {
+        // Combina data e hora para comparação
+        const dateA = a.dateConsult ? new Date(a.dateConsult) : new Date(0);
+        const dateB = b.dateConsult ? new Date(b.dateConsult) : new Date(0);
+        
+        // Se as datas forem iguais, ordena por hora
+        if (dateA.getTime() === dateB.getTime()) {
+          const timeA = a.hourConsult || "00:00";
+          const timeB = b.hourConsult || "00:00";
+          return timeA.localeCompare(timeB);
+        }
+        
+        // Ordena por data: mais próxima primeiro (menor data primeiro)
+        return dateA.getTime() - dateB.getTime();
+      });
+      
+      setAgendamentos(sortedAgendamentos);
     } catch (err) {
       setError(
         err.response?.data?.message || 
