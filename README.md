@@ -13,10 +13,18 @@ Sistema completo de gestão para clínicas veterinárias, desenvolvido com tecno
 - [Funcionalidades](#funcionalidades)
 - [Inteligência Artificial](#inteligência-artificial)
 - [Bancos de Dados](#bancos-de-dados)
+- [Modelos de Dados](#modelos-de-dados)
 - [Instalação e Configuração](#instalação-e-configuração)
 - [Estrutura do Projeto](#estrutura-do-projeto)
+- [Rotas do Frontend](#rotas-do-frontend)
 - [API Endpoints](#api-endpoints)
+- [Exemplos de Requisições](#exemplos-de-requisições)
+- [Autenticação e Autorização](#autenticação-e-autorização)
+- [Middlewares](#middlewares)
 - [Scripts Disponíveis](#scripts-disponíveis)
+- [Docker](#docker)
+- [Troubleshooting](#troubleshooting)
+- [Contribuindo](#contribuindo)
 
 ---
 
@@ -236,27 +244,6 @@ Utilizado para dados relacionais de clínicas e veterinários:
   - `Clinic` - Clínicas veterinárias
   - `Veterinario` - Veterinários vinculados a clínicas
 
-**Schema Prisma:**
-```prisma
-model Clinic {
-  id         Int            @id @default(autoincrement())
-  name       String
-  address    String?
-  email      String
-  phone      String?
-  vets       Veterinario[]
-}
-
-model Veterinario {
-  id        Int     @id @default(autoincrement())
-  name      String
-  email     String
-  crmv      String
-  clinicId  Int
-  clinic    Clinic  @relation(fields: [clinicId], references: [id])
-}
-```
-
 ### Configuração
 
 ```env
@@ -266,6 +253,22 @@ DB_URI=mongodb+srv://user:password@cluster.mongodb.net/database
 # PostgreSQL
 DATABASE_URL=postgresql://user:password@localhost:5433/database
 ```
+
+---
+
+## 📊 Modelos de Dados
+
+### MongoDB - Modelo Vet (Agendamentos/Consultas)
+Campos principais: `tutorName`, `tutorEmail`, `tutorPhone`, `animalName`, `species`, `race`, `age`, `sex`, `dateConsult`, `hourConsult`, `reasonConsult`, `symptoms`, `status` (Agendada/Cancelada/Realizada), `clinicId`, `veterinaryId`, `user` (referência)
+
+### MongoDB - Modelo User (Usuários)
+Campos principais: `name`, `email` (único), `password` (criptografado), `avatar`, `role` (user/admin), `createdAt`, `updatedAt`
+
+### PostgreSQL - Modelo Clinic (Clínicas)
+Campos: `id`, `name`, `address`, `email`, `phone`, `vets` (relação com Veterinario)
+
+### PostgreSQL - Modelo Veterinario (Veterinários)
+Campos: `id`, `name`, `email`, `crmv`, `clinicId` (FK), `clinic` (relação)
 
 ---
 
@@ -343,10 +346,22 @@ cd frontend
 npm start
 ```
 
-### Passo 6: Acesse a Aplicação
+### Passo 6: Inicie o Frontend
 
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:3000/api/v1
+**Terminal 3 - Frontend:**
+```bash
+cd frontend
+npm install
+npm start
+```
+
+### Passo 7: Acesse a Aplicação
+
+- **Frontend:** http://localhost:3000 (ou porta configurada pelo React)
+- **Backend API:** http://localhost:3000/api/v1
+- **Teste da API:** http://localhost:3000/api/v1/test
+
+**Nota:** O React geralmente roda na porta 3000, mas se estiver ocupada, ele usará a próxima disponível (3001, 3002, etc).
 
 ---
 
@@ -424,44 +439,303 @@ medvet/
 
 ---
 
+## 🗺️ Rotas do Frontend
+
+O frontend utiliza React Router para navegação. Todas as rotas estão definidas em `frontend/src/App.js`:
+
+### Rotas Públicas
+
+- `/` - Página inicial (Home)
+- `/login` - Página de login
+- `/register` - Página de registro
+
+### Rotas de Agendamentos
+
+- `/agendamentos` - Lista de agendamentos (ordenada por data)
+- `/agendamentos/novo` - Criar novo agendamento (Admin)
+- `/agendamentos/:id` - Detalhes do agendamento
+- `/agendamentos/:id/editar` - Editar agendamento (Admin)
+
+### Rotas de Consultas (Redirecionam para Agendamentos)
+
+- `/consultas` - Redireciona para `/agendamentos`
+- `/consultas/nova` - Redireciona para `/agendamentos/novo`
+
+### Rotas de Veterinários
+
+- `/medicos` - Lista de veterinários
+- `/medicos/novo` - Criar novo veterinário (Admin)
+
+### Rotas de Clínicas
+
+- `/clinicas` - Lista de clínicas
+- `/clinicas/nova` - Criar nova clínica (Admin)
+- `/clinicas/editar/:id` - Editar clínica (Admin)
+
+### Rotas de IA
+
+- `/medvet-ia` - Chatbot com Inteligência Artificial
+
+### Rotas de Perfil
+
+- `/perfil` - Perfil do usuário logado
+
+**Nota:** Rotas protegidas requerem autenticação. Algumas rotas (criar, editar, deletar) requerem permissão de administrador.
+
+---
+
 ## 🔌 API Endpoints
+
+### Base URL
+
+```
+http://localhost:3000/api/v1
+```
 
 ### Autenticação
 
-- `POST /api/v1/register` - Registrar novo usuário
-- `POST /api/v1/login` - Login de usuário
-- `GET /api/v1/me` - Obter usuário atual
-- `PUT /api/v1/me/update` - Atualizar perfil
-- `PUT /api/v1/password/update` - Atualizar senha
+#### Registrar Usuário
+- **Endpoint:** `POST /api/v1/register`
+- **Autenticação:** Não requerida
+- **Resposta:** Token JWT e dados do usuário
+
+#### Login
+- **Endpoint:** `POST /api/v1/login`
+- **Autenticação:** Não requerida
+- **Resposta:** Token JWT e dados do usuário
+
+#### Obter Usuário Atual
+- **Endpoint:** `GET /api/v1/me`
+- **Autenticação:** Requerida (Bearer Token)
+- **Headers:** `Authorization: Bearer <token>`
+- **Resposta:** Dados do usuário logado
+
+#### Atualizar Perfil
+- **Endpoint:** `PUT /api/v1/me/update`
+- **Autenticação:** Requerida
+
+#### Atualizar Senha
+- **Endpoint:** `PUT /api/v1/password/update`
+- **Autenticação:** Requerida
 
 ### Agendamentos/Consultas
 
-- `GET /api/v1/vets` - Listar agendamentos
-- `GET /api/v1/vets/:id` - Obter agendamento específico
-- `POST /api/v1/vets` - Criar agendamento (Admin)
-- `PUT /api/v1/vets/:id` - Atualizar agendamento
-- `DELETE /api/v1/vets/:id` - Excluir agendamento
+#### Listar Agendamentos
+- **Endpoint:** `GET /api/v1/vets`
+- **Autenticação:** Não requerida
+- **Query Parameters:**
+  - `keyword` - Buscar por nome do tutor
+  - `page` - Número da página
+- **Resposta:** Lista de agendamentos ordenados por data
+
+#### Obter Agendamento Específico
+- **Endpoint:** `GET /api/v1/vets/:id`
+- **Autenticação:** Não requerida
+- **Resposta:** Dados completos do agendamento
+
+#### Criar Agendamento
+- **Endpoint:** `POST /api/v1/admin/vets`
+- **Autenticação:** Requerida (Admin)
+
+#### Atualizar Agendamento
+- **Endpoint:** `PUT /api/v1/vets/:id`
+- **Autenticação:** Requerida (Admin)
+
+#### Excluir Agendamento
+- **Endpoint:** `DELETE /api/v1/vets/:id`
+- **Autenticação:** Requerida (Admin)
 
 ### Clínicas
 
-- `GET /api/v1/clinics` - Listar clínicas
-- `GET /api/v1/clinics/:id` - Obter clínica específica
-- `POST /api/v1/clinics` - Criar clínica
-- `PUT /api/v1/clinics/:id` - Atualizar clínica
-- `DELETE /api/v1/clinics/:id` - Excluir clínica
+#### Listar Clínicas
+- **Endpoint:** `GET /api/v1/clinics`
+- **Autenticação:** Não requerida
+- **Resposta:** Lista de todas as clínicas
+
+#### Obter Clínica Específica
+- **Endpoint:** `GET /api/v1/clinics/:id`
+- **Autenticação:** Não requerida
+
+#### Criar Clínica
+- **Endpoint:** `POST /api/v1/clinics`
+- **Autenticação:** Requerida (Admin)
+
+#### Atualizar Clínica
+- **Endpoint:** `PUT /api/v1/clinics/:id`
+- **Autenticação:** Requerida (Admin)
+
+#### Excluir Clínica
+- **Endpoint:** `DELETE /api/v1/clinics/:id`
+- **Autenticação:** Requerida (Admin)
 
 ### Veterinários
 
-- `GET /api/v1/veterinaries` - Listar veterinários
-- `GET /api/v1/veterinaries/:id` - Obter veterinário específico
-- `POST /api/v1/veterinaries` - Criar veterinário
-- `PUT /api/v1/veterinaries/:id` - Atualizar veterinário
-- `DELETE /api/v1/veterinaries/:id` - Excluir veterinário
+#### Listar Veterinários
+- **Endpoint:** `GET /api/v1/veterinaries`
+- **Autenticação:** Não requerida
+
+#### Obter Veterinário Específico
+- **Endpoint:** `GET /api/v1/veterinaries/:id`
+- **Autenticação:** Não requerida
+
+#### Criar Veterinário
+- **Endpoint:** `POST /api/v1/veterinaries`
+- **Autenticação:** Requerida (Admin)
+
+#### Atualizar Veterinário
+- **Endpoint:** `PUT /api/v1/veterinaries/:id`
+- **Autenticação:** Requerida (Admin)
+
+#### Excluir Veterinário
+- **Endpoint:** `DELETE /api/v1/veterinaries/:id`
+- **Autenticação:** Requerida (Admin)
 
 ### Chatbot
 
-- `POST /api/v1/chatbot` - Enviar mensagem ao chatbot
-- `GET /api/v1/chatbot/quota` - Verificar status da quota OpenAI
+#### Enviar Mensagem
+- **Endpoint:** `POST /api/v1/chatbot`
+- **Autenticação:** Não requerida
+
+#### Verificar Quota OpenAI
+- **Endpoint:** `GET /api/v1/chatbot/quota`
+- **Autenticação:** Não requerida
+
+---
+
+## 🔐 Autenticação e Autorização
+
+### Fluxo de Autenticação
+
+1. **Registro/Login:**
+   - Usuário faz POST em `/api/v1/register` ou `/api/v1/login`
+   - Servidor retorna um token JWT
+   - Token é armazenado no localStorage do frontend
+
+2. **Requisições Autenticadas:**
+   - Frontend envia token no header: `Authorization: Bearer <token>`
+   - Middleware `isAuthenticated` valida o token
+   - Se válido, adiciona `req.user` à requisição
+
+3. **Verificação de Admin:**
+   - Middleware `isAdmin` verifica se `req.user.role === "admin"`
+   - Apenas admins podem criar/editar/deletar recursos
+
+### Estrutura do Token JWT
+Token contém: `id`, `iat`, `exp`
+
+### Headers Necessários
+`Authorization: Bearer <token>` e `Content-Type: application/json`
+
+---
+
+## 🛡️ Middlewares
+
+### isAuthenticated
+
+Verifica se o usuário está autenticado:
+
+- Lê o token do header `Authorization` ou cookies
+- Valida o token JWT
+- Busca o usuário no banco de dados
+- Adiciona `req.user` à requisição
+- Retorna erro 401 se não autenticado
+
+**Uso:**
+```javascript
+router.get("/protected", isAuthenticated, controller);
+```
+
+### isAdmin
+
+Verifica se o usuário é administrador:
+
+- Deve ser usado após `isAuthenticated`
+- Verifica se `req.user.role === "admin"`
+- Retorna erro 403 se não for admin
+
+**Uso:**
+```javascript
+router.post("/admin/route", isAuthenticated, isAdmin, controller);
+```
+
+### catchAsyncErrors
+
+Wrapper para funções async que captura erros automaticamente:
+
+- Evita repetição de try/catch
+- Passa erros para o middleware de erro centralizado
+
+**Uso:**
+```javascript
+export const handler = catchAsyncErrors(async (req, res, next) => {
+  // código sem try/catch
+});
+```
+
+### errorMiddleware
+
+Middleware centralizado de tratamento de erros:
+
+- Captura todos os erros da aplicação
+- Retorna respostas JSON padronizadas
+- Loga erros para debugging
+
+---
+
+## 🔧 Serviços
+
+### chatbotService.js
+
+Serviço principal do chatbot com IA:
+
+**Funções principais:**
+- `chatbotReply(message, sessionId)` - Processa mensagem e retorna resposta
+- `checkOpenAIQuota()` - Verifica se há quota disponível na OpenAI
+- `getFrequentQuestions()` - Retorna lista de perguntas frequentes
+- `getPredefinedAnswer(questionId)` - Retorna resposta pré-definida
+
+**Fluxo de funcionamento:**
+1. Tenta usar OpenAI GPT-3.5-turbo
+2. Se falhar (quota, erro, etc), usa IA baseada em regras
+3. Detecta intenção na mensagem
+4. Retorna resposta apropriada
+
+**Base de conhecimento:**
+- 12 tópicos principais (vômito, diarreia, febre, vacina, etc.)
+- Sistema de detecção de intenções por palavras-chave
+- Respostas pré-definidas para casos comuns
+
+### clinicService.js
+
+Serviço para gerenciamento de clínicas (PostgreSQL via Prisma):
+
+- CRUD completo de clínicas
+- Validação de dados
+- Relacionamento com veterinários
+
+### veterinaryService.js
+
+Serviço para gerenciamento de veterinários (PostgreSQL via Prisma):
+
+- CRUD completo de veterinários
+- Validação de CRMV
+- Vinculação com clínicas
+
+---
+
+## 📦 Dependências Principais
+
+### Backend (package.json)
+Principais: express, mongoose, prisma, jsonwebtoken, bcryptjs, axios, cors, dotenv
+
+### Frontend
+
+Principais dependências do React:
+- `react` - Biblioteca principal
+- `react-router-dom` - Roteamento
+- `axios` - Cliente HTTP
+- `bootstrap` - Framework CSS
+- `react-helmet` - Gerenciamento de meta tags
 
 ---
 
@@ -761,6 +1035,111 @@ O `docker-compose.prod.yml` de produção inclui:
 
 ---
 
+---
+
+## 🔧 Troubleshooting
+
+### Problemas Comuns
+
+#### Erro: "Cannot find module"
+```bash
+# Reinstale as dependências
+npm install
+cd frontend && npm install
+```
+
+#### Erro: "MongoDB connection failed"
+- Verifique se o MongoDB está rodando
+- Confirme a string de conexão no `config.env`
+- Verifique se as credenciais estão corretas
+
+#### Erro: "Prisma Client not generated"
+```bash
+npm run prisma:generate
+```
+
+#### Erro: "Port 3000 already in use"
+- Pare outros processos na porta 3000
+- Ou altere a porta no `config.env`
+
+#### Erro: "JWT token invalid"
+- Verifique se `JWT_SECRET` está configurado
+- Certifique-se de que o token não expirou
+- Faça login novamente
+
+#### Erro: "OpenAI quota exceeded"
+- O sistema automaticamente usa IA baseada em regras
+- Adicione créditos na conta OpenAI ou aguarde
+
+#### Erro: "CORS policy"
+- Verifique se o CORS está configurado no backend
+- Confirme que a origem do frontend está permitida
+
+### Logs e Debugging
+
+#### Backend
+```bash
+# Ver logs em tempo real
+npm run dev
+
+# Ver logs do Docker
+docker-compose logs -f backend
+```
+
+#### Frontend
+```bash
+# Ver erros no console do navegador
+# F12 > Console
+
+# Ver erros de rede
+# F12 > Network
+```
+
+### Resetar Banco de Dados
+
+#### MongoDB
+```bash
+# Via Docker
+docker-compose exec mongodb mongosh
+use medvet
+db.dropDatabase()
+
+# Ou remover volume
+docker-compose down -v
+```
+
+#### PostgreSQL
+```bash
+# Via Docker
+docker-compose exec postgres psql -U postgres -d medvet
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
+
+# Ou remover volume
+docker-compose down -v
+```
+
+---
+
+## 📚 Estrutura de Código
+
+### Padrões de Código
+
+- **Backend:** ES6+ modules, async/await, try/catch
+- **Frontend:** React Hooks, Functional Components
+- **Nomenclatura:** camelCase para variáveis, PascalCase para componentes
+- **Arquivos:** kebab-case para nomes de arquivos
+
+### Convenções
+
+- Controllers: Lógica de negócio e validação
+- Services: Integrações externas e lógica complexa
+- Models: Definição de schemas e modelos
+- Middleware: Validação e autenticação
+- Routes: Definição de endpoints
+
+---
+
 ## 📝 Licença
 
 Este projeto é de uso livre para fins educacionais e pode ser adaptado conforme necessidade.
@@ -770,14 +1149,3 @@ Este projeto é de uso livre para fins educacionais e pode ser adaptado conforme
 ## 👨‍💻 Desenvolvido por
 
 **Pedro Gomes de Almeida** e **Matheus de Castro Evangelista**
-
----
-
-## 📞 Suporte
-
-Para dúvidas ou problemas, abra uma issue no repositório do projeto.
-
----
-
-**Versão:** 1.0.0  
-**Última atualização:** 2024
