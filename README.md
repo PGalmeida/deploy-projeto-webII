@@ -280,75 +280,16 @@ DATABASE_URL=postgresql://user:password@localhost:5433/database
 ## 📊 Modelos de Dados
 
 ### MongoDB - Modelo Vet (Agendamentos/Consultas)
-
-```javascript
-{
-  tutorName: String (obrigatório, max 100 caracteres),
-  tutorEmail: String (obrigatório),
-  tutorPhone: String (obrigatório, max 15 caracteres),
-  animalName: String (obrigatório, max 100 caracteres),
-  species: String (obrigatório, max 50 caracteres),
-  race: String (opcional, max 50 caracteres),
-  age: Number (obrigatório, 0-50),
-  sex: String (obrigatório, "Macho" ou "Fêmea"),
-  dateConsult: Date (obrigatório),
-  hourConsult: String (obrigatório),
-  reasonConsult: String (obrigatório, max 500 caracteres),
-  symptoms: String (obrigatório, max 500 caracteres),
-  status: String (obrigatório, "Agendada" | "Cancelada" | "Realizada"),
-  observations: String (opcional, max 500 caracteres),
-  clinicId: Number (obrigatório),
-  veterinaryId: Number (obrigatório),
-  user: ObjectId (referência ao User),
-  createdAt: Date (automático),
-  updatedAt: Date (automático)
-}
-```
+Campos principais: `tutorName`, `tutorEmail`, `tutorPhone`, `animalName`, `species`, `race`, `age`, `sex`, `dateConsult`, `hourConsult`, `reasonConsult`, `symptoms`, `status` (Agendada/Cancelada/Realizada), `clinicId`, `veterinaryId`, `user` (referência)
 
 ### MongoDB - Modelo User (Usuários)
-
-```javascript
-{
-  name: String (obrigatório, max 50 caracteres),
-  email: String (obrigatório, único),
-  password: String (obrigatório, min 6 caracteres, criptografado),
-  avatar: {
-    public_id: String,
-    url: String
-  },
-  resetPasswordToken: String,
-  resetPasswordExpire: Date,
-  role: String (padrão: "user", pode ser "admin"),
-  createdAt: Date (automático),
-  updatedAt: Date (automático)
-}
-```
+Campos principais: `name`, `email` (único), `password` (criptografado), `avatar`, `role` (user/admin), `createdAt`, `updatedAt`
 
 ### PostgreSQL - Modelo Clinic (Clínicas)
-
-```prisma
-{
-  id: Int (auto-incremento, chave primária),
-  name: String (obrigatório),
-  address: String (opcional),
-  email: String (obrigatório),
-  phone: String (opcional),
-  vets: Veterinario[] (relação um-para-muitos)
-}
-```
+Campos: `id`, `name`, `address`, `email`, `phone`, `vets` (relação com Veterinario)
 
 ### PostgreSQL - Modelo Veterinario (Veterinários)
-
-```prisma
-{
-  id: Int (auto-incremento, chave primária),
-  name: String (obrigatório),
-  email: String (obrigatório),
-  crmv: String (obrigatório),
-  clinicId: Int (chave estrangeira para Clinic),
-  clinic: Clinic (relação muitos-para-um)
-}
-```
+Campos: `id`, `name`, `email`, `crmv`, `clinicId` (FK), `clinic` (relação)
 
 ---
 
@@ -646,23 +587,12 @@ http://localhost:3000/api/v1
 #### Atualizar Perfil
 - **Endpoint:** `PUT /api/v1/me/update`
 - **Autenticação:** Requerida
-- **Body:**
-```json
-{
-  "name": "João Silva Atualizado"
-}
-```
+- **Body:** `{ "name": "Novo Nome" }`
 
 #### Atualizar Senha
 - **Endpoint:** `PUT /api/v1/password/update`
 - **Autenticação:** Requerida
-- **Body:**
-```json
-{
-  "currentPassword": "senha123",
-  "newPassword": "novaSenha456"
-}
-```
+- **Body:** `{ "currentPassword": "senha123", "newPassword": "novaSenha456" }`
 
 ### Agendamentos/Consultas
 
@@ -726,15 +656,7 @@ http://localhost:3000/api/v1
 #### Criar Clínica
 - **Endpoint:** `POST /api/v1/clinics`
 - **Autenticação:** Requerida (Admin)
-- **Body:**
-```json
-{
-  "name": "Clínica Veterinária PetCare",
-  "address": "Rua das Flores, 123",
-  "email": "contato@petcare.com",
-  "phone": "11988888888"
-}
-```
+- **Body:** `{ "name": "Nome", "address": "Endereço", "email": "email@email.com", "phone": "11999999999" }`
 
 #### Atualizar Clínica
 - **Endpoint:** `PUT /api/v1/clinics/:id`
@@ -757,15 +679,7 @@ http://localhost:3000/api/v1
 #### Criar Veterinário
 - **Endpoint:** `POST /api/v1/veterinaries`
 - **Autenticação:** Requerida (Admin)
-- **Body:**
-```json
-{
-  "name": "Dr. Carlos Mendes",
-  "email": "carlos@vet.com",
-  "crmv": "CRMV-SP-12345",
-  "clinicId": 1
-}
-```
+- **Body:** `{ "name": "Nome", "email": "email@email.com", "crmv": "CRMV-SP-12345", "clinicId": 1 }`
 
 #### Atualizar Veterinário
 - **Endpoint:** `PUT /api/v1/veterinaries/:id`
@@ -798,20 +712,7 @@ http://localhost:3000/api/v1
 #### Verificar Quota OpenAI
 - **Endpoint:** `GET /api/v1/chatbot/quota`
 - **Autenticação:** Não requerida
-- **Resposta:**
-```json
-{
-  "hasQuota": true,
-  "reason": null,
-  "questions": [
-    {
-      "id": "vomito",
-      "text": "Precisa de ajuda com vômito?"
-    },
-    ...
-  ]
-}
-```
+- **Resposta:** `{ "hasQuota": true, "questions": [...] }`
 
 ---
 
@@ -834,40 +735,19 @@ curl -X POST http://localhost:3000/api/v1/login \
 curl -X POST http://localhost:3000/api/v1/admin/vets \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer SEU_TOKEN_JWT_AQUI" \
-  -d '{
-    "tutorName": "João Silva",
-    "tutorEmail": "joao@email.com",
-    "tutorPhone": "11999999999",
-    "animalName": "Rex",
-    "species": "Cão",
-    "race": "Labrador",
-    "age": 3,
-    "sex": "Macho",
-    "dateConsult": "2024-12-25",
-    "hourConsult": "14:00",
-    "reasonConsult": "Consulta de rotina",
-    "symptoms": "Nenhum",
-    "status": "Agendada",
-    "clinicId": 1,
-    "veterinaryId": 1
-  }'
+  -d '{"tutorName": "João Silva", "tutorEmail": "joao@email.com", "animalName": "Rex", "species": "Cão", "age": 3, "sex": "Macho", "dateConsult": "2024-12-25", "hourConsult": "14:00", "reasonConsult": "Consulta", "symptoms": "Nenhum", "status": "Agendada", "clinicId": 1, "veterinaryId": 1}'
 ```
 
-### Exemplo: Listar Agendamentos com Busca
-
+### Exemplo: Listar Agendamentos
 ```bash
-curl -X GET "http://localhost:3000/api/v1/vets?keyword=João&page=1"
+curl -X GET "http://localhost:3000/api/v1/vets?keyword=João"
 ```
 
 ### Exemplo: Enviar Mensagem ao Chatbot
-
 ```bash
 curl -X POST http://localhost:3000/api/v1/chatbot \
   -H "Content-Type: application/json" \
-  -d '{
-    "message": "Como cuidar de um filhote?",
-    "sessionId": "session_123"
-  }'
+  -d '{"message": "Como cuidar de um filhote?", "sessionId": "session_123"}'
 ```
 
 ---
@@ -891,23 +771,10 @@ curl -X POST http://localhost:3000/api/v1/chatbot \
    - Apenas admins podem criar/editar/deletar recursos
 
 ### Estrutura do Token JWT
-
-```javascript
-{
-  id: "user_id",
-  iat: timestamp,
-  exp: timestamp
-}
-```
+Token contém: `id`, `iat`, `exp`
 
 ### Headers Necessários
-
-```javascript
-{
-  "Content-Type": "application/json",
-  "Authorization": "Bearer <seu_token_jwt>"
-}
-```
+`Authorization: Bearer <token>` e `Content-Type: application/json`
 
 ---
 
@@ -1070,21 +937,7 @@ Serviço para gerenciamento de veterinários (PostgreSQL via Prisma):
 ## 📦 Dependências Principais
 
 ### Backend (package.json)
-
-```json
-{
-  "express": "^5.1.0",
-  "mongoose": "^8.19.3",
-  "@prisma/client": "^6.19.0",
-  "prisma": "^6.19.0",
-  "jsonwebtoken": "^9.0.2",
-  "bcryptjs": "^3.0.3",
-  "axios": "^1.13.2",
-  "cors": "^2.8.5",
-  "dotenv": "^17.2.3",
-  "nodemon": "^3.1.10"
-}
-```
+Principais: express, mongoose, prisma, jsonwebtoken, bcryptjs, axios, cors, dotenv
 
 ### Frontend
 
@@ -1529,57 +1382,31 @@ docker-compose down -v
 Veja exemplos na seção [Exemplos de Requisições](#exemplos-de-requisições)
 
 ### Com JavaScript/Fetch
-
 ```javascript
 // Login
 const response = await fetch('http://localhost:3000/api/v1/login', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    email: 'usuario@email.com',
-    password: 'senha123'
-  })
+  body: JSON.stringify({ email: 'usuario@email.com', password: 'senha123' })
 });
-
-const data = await response.json();
-const token = data.token;
+const { token } = await response.json();
 
 // Requisição autenticada
 const agendamentos = await fetch('http://localhost:3000/api/v1/vets', {
-  headers: {
-    'Authorization': `Bearer ${token}`
-  }
+  headers: { 'Authorization': `Bearer ${token}` }
 });
 ```
 
 ### Com Axios (Frontend)
-
 ```javascript
 import { authAPI, vetAPI } from './api/api';
 
 // Login
-const login = async () => {
-  try {
-    const response = await authAPI.login({
-      email: 'usuario@email.com',
-      password: 'senha123'
-    });
-    const token = response.data.token;
-    localStorage.setItem('token', token);
-  } catch (error) {
-    console.error('Erro no login:', error);
-  }
-};
+const { data } = await authAPI.login({ email: 'usuario@email.com', password: 'senha123' });
+localStorage.setItem('token', data.token);
 
 // Listar agendamentos
-const getAgendamentos = async () => {
-  try {
-    const response = await vetAPI.getAll();
-    console.log(response.data.vets);
-  } catch (error) {
-    console.error('Erro ao buscar agendamentos:', error);
-  }
-};
+const { data } = await vetAPI.getAll();
 ```
 
 ---
@@ -1617,71 +1444,43 @@ export default router;
 ```
 
 ### Frontend - Criar Componente React
-
 ```javascript
 import React, { useState, useEffect } from 'react';
 import { vetAPI } from '../api/api';
 
 const AgendamentosList = () => {
   const [agendamentos, setAgendamentos] = useState([]);
-  const [loading, setLoading] = useState(true);
-
+  
   useEffect(() => {
-    fetchAgendamentos();
+    const fetch = async () => {
+      const { data } = await vetAPI.getAll();
+      setAgendamentos(data.vets);
+    };
+    fetch();
   }, []);
-
-  const fetchAgendamentos = async () => {
-    try {
-      const response = await vetAPI.getAll();
-      setAgendamentos(response.data.vets);
-    } catch (error) {
-      console.error('Erro:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) return <div>Carregando...</div>;
 
   return (
     <div>
-      {agendamentos.map(agendamento => (
-        <div key={agendamento._id}>
-          <h3>{agendamento.animalName}</h3>
-          <p>Tutor: {agendamento.tutorName}</p>
+      {agendamentos.map(a => (
+        <div key={a._id}>
+          <h3>{a.animalName}</h3>
+          <p>Tutor: {a.tutorName}</p>
         </div>
       ))}
     </div>
   );
 };
-
-export default AgendamentosList;
 ```
 
 ### Frontend - Usar Chatbot API
-
 ```javascript
 import { chatbotAPI } from '../api/api';
 
-const sendMessage = async (message) => {
-  try {
-    const response = await chatbotAPI.sendMessage(message, 'session_123');
-    return response.data.bot;
-  } catch (error) {
-    console.error('Erro no chatbot:', error);
-    return 'Desculpe, ocorreu um erro.';
-  }
-};
+// Enviar mensagem
+const { data } = await chatbotAPI.sendMessage('mensagem', 'session_123');
 
 // Verificar quota
-const checkQuota = async () => {
-  try {
-    const response = await chatbotAPI.checkQuota();
-    return response.data.hasQuota;
-  } catch (error) {
-    return false;
-  }
-};
+const { data } = await chatbotAPI.checkQuota();
 ```
 
 ---
@@ -1721,15 +1520,7 @@ const checkQuota = async () => {
    ```
 
 ### Variáveis de Ambiente de Produção
-
-```env
-NODE_ENV=production
-PORT=3000
-DB_URI=mongodb+srv://...
-DATABASE_URL=postgresql://...
-JWT_SECRET=secret_forte_producao
-OPENAI_API_KEY=sua_chave_producao
-```
+Configure `NODE_ENV=production`, `DB_URI`, `DATABASE_URL`, `JWT_SECRET` e `OPENAI_API_KEY`
 
 ### Checklist de Deploy
 
