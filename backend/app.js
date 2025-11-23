@@ -18,29 +18,34 @@ import { dirname, join } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Tenta carregar o .env de diferentes locais
-const envPaths = [
-  join(__dirname, 'config', 'config.env'),
-  join(process.cwd(), 'backend', 'config', 'config.env'),
-  join(process.cwd(), 'config', 'config.env'),
-];
+// Tenta carregar o .env de diferentes locais (apenas em desenvolvimento)
+// Em produção, as variáveis devem vir do sistema (Docker, Railway, etc)
+if (process.env.NODE_ENV !== 'production') {
+  const envPaths = [
+    join(__dirname, 'config', 'config.env'),
+    join(process.cwd(), 'backend', 'config', 'config.env'),
+    join(process.cwd(), 'config', 'config.env'),
+  ];
 
-let envLoaded = false;
-for (const envPath of envPaths) {
-  try {
-    const result = dotenv.config({ path: envPath });
-    if (!result.error) {
-      envLoaded = true;
-      console.log(`Variáveis de ambiente carregadas de: ${envPath}`);
-      break;
+  let envLoaded = false;
+  for (const envPath of envPaths) {
+    try {
+      const result = dotenv.config({ path: envPath });
+      if (!result.error) {
+        envLoaded = true;
+        console.log(`✅ Variáveis de ambiente carregadas de: ${envPath}`);
+        break;
+      }
+    } catch (err) {
+      // Continua tentando próximo caminho
     }
-  } catch (err) {
-    // Continua tentando próximo caminho
   }
-}
 
-if (!envLoaded) {
-  console.warn("AVISO: Não foi possível carregar o arquivo config.env. Verifique o caminho.");
+  if (!envLoaded) {
+    console.warn("⚠️  AVISO: Não foi possível carregar o arquivo config.env. Usando variáveis de ambiente do sistema.");
+  }
+} else {
+  console.log("🔧 Modo PRODUÇÃO: Usando variáveis de ambiente do sistema.");
 }
 
 connectDatabase();
