@@ -10,7 +10,38 @@ import vetRoutes from "./routes/vet.js";
 import chatbotRoutes from "./routes/chatbotRoutes.js";
 
 const app = express();
-dotenv.config({ path: "backend/config/config.env" });
+
+// Carrega variáveis de ambiente - tenta múltiplos caminhos
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Tenta carregar o .env de diferentes locais
+const envPaths = [
+  join(__dirname, 'config', 'config.env'),
+  join(process.cwd(), 'backend', 'config', 'config.env'),
+  join(process.cwd(), 'config', 'config.env'),
+];
+
+let envLoaded = false;
+for (const envPath of envPaths) {
+  try {
+    const result = dotenv.config({ path: envPath });
+    if (!result.error) {
+      envLoaded = true;
+      console.log(`Variáveis de ambiente carregadas de: ${envPath}`);
+      break;
+    }
+  } catch (err) {
+    // Continua tentando próximo caminho
+  }
+}
+
+if (!envLoaded) {
+  console.warn("AVISO: Não foi possível carregar o arquivo config.env. Verifique o caminho.");
+}
 
 connectDatabase();
 

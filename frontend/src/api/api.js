@@ -116,7 +116,8 @@ export const clinicAPI = {
 };
 
 export const chatbotAPI = {
-  sendMessage: (message) => api.post("/chatbot", { message }),
+  sendMessage: (message, sessionId) => api.post("/chatbot", { message, sessionId }),
+  checkQuota: () => api.get("/chatbot/quota"),
 };
 
 export default api;

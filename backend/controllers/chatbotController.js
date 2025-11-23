@@ -1,14 +1,14 @@
-import { chatbotReply } from "../services/chatbotService.js";
+import { chatbotReply, checkOpenAIQuota, getFrequentQuestions } from "../services/chatbotService.js";
 
 export const sendMessage = async (req, res) => {
   try {
-    const { message } = req.body;
+    const { message, sessionId } = req.body;
 
     if (!message) {
       return res.status(400).json({ error: "Mensagem é obrigatória." });
     }
 
-    const reply = await chatbotReply(message);
+    const reply = await chatbotReply(message, sessionId);
 
     return res.json({
       user: message,
@@ -19,6 +19,25 @@ export const sendMessage = async (req, res) => {
     return res.status(500).json({ 
       error: errorMessage,
       bot: errorMessage 
+    });
+  }
+};
+
+export const checkQuota = async (req, res) => {
+  try {
+    const quotaStatus = await checkOpenAIQuota();
+    const questions = getFrequentQuestions();
+    
+    return res.json({
+      hasQuota: quotaStatus.hasQuota,
+      reason: quotaStatus.reason,
+      questions: questions,
+    });
+  } catch (error) {
+    return res.status(500).json({ 
+      hasQuota: false,
+      reason: "error",
+      questions: getFrequentQuestions(),
     });
   }
 };
