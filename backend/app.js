@@ -57,6 +57,7 @@ if (!envLoaded) {
 console.log("📋 Verificando variáveis de ambiente:");
 console.log(`  - NODE_ENV: ${process.env.NODE_ENV || 'não definido'}`);
 console.log(`  - PORT: ${process.env.PORT || 'não definido (usando 3000)'}`);
+console.log(`  - FRONTEND_URL: ${process.env.FRONTEND_URL || '❌ não configurada'}`);
 console.log(`  - DB_URI: ${process.env.DB_URI ? '✅ configurada' : '❌ não configurada'}`);
 console.log(`  - DATABASE_URL: ${process.env.DATABASE_URL ? '✅ configurada' : '❌ não configurada'}`);
 console.log(`  - JWT_SECRET: ${process.env.JWT_SECRET ? '✅ configurada' : '❌ não configurada'}`);
@@ -86,31 +87,49 @@ connectDatabase().catch((err) => {
 // Configuração CORS para produção
 const corsOptions = {
   origin: function (origin, callback) {
-    // Em produção, aceita requisições do Vercel e Railway
-    const allowedOrigins = [
+    // Lista de origins permitidas
+    const allowedOrigins = [];
+    
+    // Adiciona FRONTEND_URL se estiver configurado
+    if (process.env.FRONTEND_URL) {
+      allowedOrigins.push(process.env.FRONTEND_URL);
+    }
+    
+    // Padrões de origins permitidas
+    allowedOrigins.push(
       /^https:\/\/.*\.vercel\.app$/,
       /^https:\/\/.*\.railway\.app$/,
-      /^https:\/\/medvet.*\.vercel\.app$/,
+      /^https:\/\/.*\.onrender\.app$/,
+      /^https:\/\/.*\.onrender\.com$/,
       /^http:\/\/localhost:\d+$/, // Para desenvolvimento local
-    ];
+      /^http:\/\/127\.0\.0\.1:\d+$/, // Para desenvolvimento local
+    );
     
     // Se não há origin (ex: requisições do Postman, mobile apps), permite
     if (!origin) {
       return callback(null, true);
     }
     
-    // Verifica se a origin está na lista de permitidas
-    const isAllowed = allowedOrigins.some(pattern => pattern.test(origin));
+    // Verifica se a origin está na lista de permitidas (exata ou por padrão)
+    const isAllowed = allowedOrigins.some(pattern => {
+      if (typeof pattern === 'string') {
+        // Verificação exata da URL do frontend
+        return pattern === origin;
+      }
+      // Verificação por padrão regex
+      return pattern.test(origin);
+    });
     
     if (isAllowed) {
       callback(null, true);
     } else {
       // Em desenvolvimento, permite qualquer origem
-        if (process.env.NODE_ENV !== 'PRODUCTION') {
+      if (process.env.NODE_ENV !== 'PRODUCTION') {
         callback(null, true);
       } else {
-        console.warn(`⚠️  CORS bloqueado para origin: ${origin}`);
-        callback(null, true); // Por enquanto permite tudo, mas loga
+        console.warn(`⚠️  CORS: origin não permitida: ${origin}`);
+        // Em produção, ainda permite para evitar problemas, mas loga
+        callback(null, true);
       }
     }
   },
