@@ -1,12 +1,19 @@
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:3000/api/v1";
-
+// Detecta automaticamente a URL da API baseado no ambiente
 const getApiUrl = () => {
-  return API_BASE_URL;
+  // Se estiver em produção (deploy), usa a URL do Render
+  if (process.env.NODE_ENV === 'production' || 
+      (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1')) {
+    // URL da API no Render
+    return "https://deploy-projeto-webii-1.onrender.com/api/v1";
+  }
+  // Desenvolvimento local
+  return "http://localhost:3000/api/v1";
 };
 
-const API_URL = getApiUrl();
+const API_BASE_URL = getApiUrl();
+const API_URL = API_BASE_URL;
 const cleanApiUrl = API_URL.endsWith('/') ? API_URL.slice(0, -1) : API_URL;
 
 const api = axios.create({
@@ -61,7 +68,8 @@ api.interceptors.response.use(
 
 export const authAPI = {
   register: (userData) => {
-    const url = "http://localhost:3000/api/v1/register";
+    const baseUrl = getApiUrl();
+    const url = `${baseUrl}/register`;
     return axios({
       method: 'POST',
       url: url,
@@ -73,7 +81,8 @@ export const authAPI = {
     });
   },
   login: (credentials) => {
-    const url = "http://localhost:3000/api/v1/login";
+    const baseUrl = getApiUrl();
+    const url = `${baseUrl}/login`;
     return axios({
       method: 'POST',
       url: url,
